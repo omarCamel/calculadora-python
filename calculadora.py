@@ -84,17 +84,17 @@ class App(tk.Tk):
         self.btFactorial=tk.Button(self, text="n!", command=lambda: self.Operador("!"))
         self.btFactorial.place(x=40,y=190)
 
-        self.btA=tk.Button(self, text="A", command=lambda:self.Enviar_display("A"))
+        self.btA=tk.Button(self, text="A", command=lambda:self.insertar_letra("A"))
         self.btA.place(x=20,y=160)
-        self.btB=tk.Button(self, text="B", command=lambda:self.Enviar_display("B"))
+        self.btB=tk.Button(self, text="B", command=lambda:self.insertar_letra("B"))
         self.btB.place(x=20,y=190)
-        self.btC=tk.Button(self, text="C", command=lambda:self.Enviar_display("C"))
+        self.btC=tk.Button(self, text="C", command=lambda:self.insertar_letra("C"))
         self.btC.place(x=20,y=220)
-        self.btD=tk.Button(self, text="D", command=lambda:self.Enviar_display("D"))
+        self.btD=tk.Button(self, text="D", command=lambda:self.insertar_letra("D"))
         self.btD.place(x=20,y=250)
-        self.btE=tk.Button(self, text="E", command=lambda:self.Enviar_display("E"))
+        self.btE=tk.Button(self, text="E", command=lambda:self.insertar_letra("E"))
         self.btE.place(x=20,y=280)
-        self.btF=tk.Button(self, text="F", command=lambda:self.Enviar_display("F"))
+        self.btF=tk.Button(self, text="F", command=lambda:self.insertar_letra("F"))
         self.btF.place(x=20,y=310)
 
         self.numero_aux=0
@@ -121,6 +121,19 @@ class App(tk.Tk):
         texto = self.entry_display.get()
         if texto:
             self.entry_display.delete(len(texto) - 1, END)
+        self.entry_display.config(state="disabled")
+        self.actualizar_sistemas(self.entry_display.get())
+
+    def insertar_letra(self, letra):
+        self.entry_display.config(state="normal")
+        display = "" if self.reset_display else self.entry_display.get()
+        self.reset_display = False
+        self.ban_dec = False
+        self.ban_bin = False
+        self.ban_oct = False
+        self.ban_hex = True
+        self.entry_display.delete(0, END)
+        self.entry_display.insert(0, display + letra)
         self.entry_display.config(state="disabled")
         self.actualizar_sistemas(self.entry_display.get())
 
@@ -268,6 +281,30 @@ class App(tk.Tk):
                 self.entry_dec.config(state="disabled")
             except:
                 print("")
+        elif self.ban_hex:
+            try:
+                decimal = self.hex_dec(numero)
+                self.entry_hex.config(state="normal")
+                self.entry_hex.delete(0, END)
+                self.entry_hex.insert(0, numero)
+                self.entry_hex.config(state="disabled")
+
+                self.entry_dec.config(state="normal")
+                self.entry_dec.delete(0, END)
+                self.entry_dec.insert(0, decimal)
+                self.entry_dec.config(state="disabled")
+
+                self.entry_bin.config(state="normal")
+                self.entry_bin.delete(0, END)
+                self.entry_bin.insert(0, self.dec_bin(decimal))
+                self.entry_bin.config(state="disabled")
+
+                self.entry_oct.config(state="normal")
+                self.entry_oct.delete(0, END)
+                self.entry_oct.insert(0, self.dec_oct(decimal))
+                self.entry_oct.config(state="disabled")
+            except (ValueError, TypeError):
+                self.clear_conversions()
         elif self.ban_bin:
 
             try:
@@ -302,6 +339,14 @@ class App(tk.Tk):
             self.ban_punto=False
             return bin(int(numero)).replace("0b","")
     
+    def hex_dec(self, numero):
+        if "." in numero:
+            self.ban_punto=True
+            return "Error"
+        else:
+            self.ban_punto=False
+            return str(int(numero,16))
+        
     def dec_oct(self, numero):
         if "." in numero:
             self.ban_punto=True
